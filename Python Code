@@ -1,0 +1,20 @@
+import cv2  
+from cvzone.HandTrackingModule import HandDetector
+from cvzone.SerialModule import SerialObject
+
+cap = cv2.VideoCapture(0)
+
+detector = HandDetector(detectionCon=0.8)
+arduino = SerialObject("COM3")                  # use your COM port here
+
+while True:
+    success, image = cap.read()
+    hands, bboxInfo = detector.findHands(image)
+    if len(hands)==1:
+        print(detector.fingersUp(hands[0]))       
+        if detector.fingersUp(hands[0]) == [0,1,0,0,0]:    
+            arduino.sendData([180])              
+        else:
+            arduino.sendData([0])                      
+    cv2.imshow('image',image)      # show our image
+    cv2.waitKey(1)        # wait for a 1 milli second delay
